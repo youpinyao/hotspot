@@ -9,10 +9,11 @@ module.exports = {
     "object-curly-newline": 0,
     "import/no-unresolved": 0,
     "no-debugger": 0,
+    "global-require": 0,
+    "class-methods-use-this": 0,
   },
   "globals": {
     "window": true,
-    "moment": true,
-    "$": true,
+    "document": true,
   },
 };

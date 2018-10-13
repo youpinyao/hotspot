@@ -1,0 +1,33 @@
+.y-hotspot {
+  &-container {
+    user-select: none;
+    position: relative;
+
+    img {
+      vertical-align: top;
+    }
+  }
+  &-items {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  &-item {
+    position: absolute;
+    background-color: fade(#000, 40);
+    cursor: move;
+  }
+  &-dot {
+    cursor: se-resize;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #fff;
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    box-shadow: 0 0 2px 0 #000;
+  }
+}

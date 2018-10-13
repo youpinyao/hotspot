@@ -18,3 +18,8 @@ body {
   font-size: 0;
   height: 0;
 }
+
+
+#container {
+  padding: 50px;
+}
