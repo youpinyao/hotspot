@@ -28,22 +28,33 @@ class Hotspot {
       src,
     } = this.options;
 
-    const img = new window.Image();
+    let img = null;
 
-    img.onload = () => {
+    const onload = () => {
       const div = document.createElement('div');
       const items = document.createElement('div');
 
       div.className = 'y-hotspot-container';
       items.className = 'y-hotspot-items';
 
-      div.appendChild(img);
+      if (img) {
+        div.appendChild(img);
+      }
       div.appendChild(items);
 
-      div.style.width = `${img.width}px`;
-      div.style.height = `${img.height}px`;
+      if (img) {
+        div.style.width = `${img.width}px`;
+        div.style.height = `${img.height}px`;
+      } else {
+        div.style.width = '100%';
+        div.style.height = '100%';
+      }
 
-      document.querySelector(target).appendChild(div);
+      if (typeof target === 'string') {
+        document.querySelector(target).appendChild(div);
+      } else {
+        target.appendChild(div);
+      }
 
       this.container = div;
       this.target = items;
@@ -51,7 +62,13 @@ class Hotspot {
       this.renderSpot();
     };
 
-    img.src = src;
+    if (src) {
+      img = new window.Image();
+      img.onload = onload;
+      img.src = src;
+    } else {
+      onload();
+    }
   }
   addSpot() {
     const {
@@ -89,15 +106,28 @@ class Hotspot {
 
     target.innerHTML = spots.map(spot => spotTpl(spot)).join('');
 
+    const items = this.getItems();
+
+    spots.forEach((spot, i) => {
+      if (spot && spot.spots) {
+        // eslint-disable-next-line
+        new Hotspot({
+          target: items[i],
+          spots: spot.spots,
+        });
+      }
+    });
+
     this.bindEvent();
   }
   bindEvent() {
     const that = this;
-    const items = this.container.querySelectorAll('.y-hotspot-item');
+    const items = this.getItems();
 
     Array.prototype.forEach.call(items, (item, index) => {
       // eslint-disable-next-line
       item.addEventListener('mousedown', function(e) {
+        e.stopPropagation();
         that.mousedown.bind(that)(e, index);
       });
     });
@@ -127,7 +157,7 @@ class Hotspot {
     window.removeEventListener('mouseleave', this._mouseup);
   }
   mousedown(e, index) {
-    const items = this.container.querySelectorAll('.y-hotspot-item');
+    const items = this.getItems();
     const spot = this.spots[index];
 
     this.startPage = {
@@ -159,7 +189,7 @@ class Hotspot {
   }
   // eslint-disable-next-line
   mousemove(e) {
-    const items = this.container.querySelectorAll('.y-hotspot-item');
+    const items = this.getItems();
     const {
       startPage,
       currentSpot,
@@ -542,6 +572,12 @@ class Hotspot {
     }
 
     return isHit;
+  }
+  getItems() {
+    const items = this.container.querySelectorAll('.y-hotspot-item');
+
+    return Array.prototype.filter
+      .call(items, item => item.parentElement.parentElement === this.container);
   }
 }
 

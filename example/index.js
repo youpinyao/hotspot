@@ -7,22 +7,19 @@ const hotspot = new Hotspot({
   target: '#container',
   src: require('./640x360.png'),
   minWidth: 100,
-  minHeight: 50,
+  minHeight: 100,
   spots: [{
     left: 0,
     top: 0,
-    width: 100,
-    height: 50,
-  }, {
-    left: 100,
-    top: 0,
-    width: 100,
-    height: 50,
-  }, {
-    left: 200,
-    top: 0,
-    width: 100,
-    height: 50,
+    width: 200,
+    height: 200,
+    spots: [{
+      top: 0,
+      left: 0,
+      width: 100,
+      height: 50,
+      resize: false,
+    }],
   }],
 });
 
