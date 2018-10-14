@@ -77,12 +77,13 @@ class Hotspot {
         top,
         width,
         height,
+        resize = true,
       } = spot;
       return `<div
         class="y-hotspot-item"
         style="left:${left}px; top:${top}px; width:${width}px; height:${height}px;"
       >
-      <div class="y-hotspot-dot"></div>
+      ${resize ? '<div class="y-hotspot-dot"></div>' : ''}
       </div>`;
     };
 
@@ -153,6 +154,8 @@ class Hotspot {
   mouseup() {
     this.startPage = null;
     this.currentSpot = null;
+    this.preMouseMove = null;
+    this.mouseMoveDireciton = null;
   }
   // eslint-disable-next-line
   mousemove(e) {
@@ -174,26 +177,34 @@ class Hotspot {
       } = startPage;
 
       let size = null;
+      const x = e.pageX - pageX;
+      const y = e.pageY - pageY;
 
       if (isResize) {
         size = this.getSize(
           left,
           top,
-          width + (e.pageX - pageX),
-          height + (e.pageY - pageY),
+          width + x,
+          height + y,
           isResize,
         );
       } else {
         size = this.getSize(
-          left + (e.pageX - pageX),
-          top + (e.pageY - pageY),
+          left + x,
+          top + y,
           width,
           height,
           isResize,
         );
       }
 
-      size = this.getHitSize(size, isResize);
+      const {
+        size: newSize,
+        // eslint-disable-next-line
+        hasHit,
+      } = this.getHitSize(size, isResize);
+
+      size = newSize;
 
       this.spots[currentSpot].left = size.left;
       this.spots[currentSpot].top = size.top;
@@ -273,13 +284,18 @@ class Hotspot {
       width,
       height,
     };
+    let hasHit = false;
 
     spots.forEach((spot, index) => {
       if (currentSpot !== index) {
-        let isHit = this.hitTest(size, spot, false, isResize, `${currentSpot}${index}`);
+        let isHit = this.getDirection(size, spot, false, isResize, `${currentSpot}${index}`);
 
         if (!isHit) {
-          isHit = this.hitTest(size, spot, true, isResize, `${currentSpot}${index}`);
+          isHit = this.getDirection(size, spot, true, isResize, `${currentSpot}${index}`);
+        }
+
+        if (!hasHit && isHit) {
+          hasHit = isHit;
         }
 
         if (isHit) {
@@ -323,9 +339,12 @@ class Hotspot {
       }
     });
 
-    return size;
+    return {
+      size,
+      hasHit,
+    };
   }
-  hitTest(spot1, spot2, isReverse = false, isResize, tag) {
+  getDirection(spot1, spot2, isReverse = false, isResize, tag) {
     const prevSpot = this[`_preSpot${tag}${isReverse}`] || spot1;
 
     const dot11 = {
@@ -467,7 +486,6 @@ class Hotspot {
 
     // 左右 或 上下 不可移动情况
     if ((isHit && !isHit.direction) && hits.length && isReverse === true) {
-      console.log(hits);
       if (hits.join('') === '1' || (hits.join('') === '2' && prevSpot.top === 0) || hits.join('') ===
         '12') {
         isHit = {
@@ -517,7 +535,10 @@ class Hotspot {
     }
 
     if (hits.length) {
-      // console.log(isReverse, hits, isHit);
+      // console.log('hits', isReverse, hits, isHit);
+    }
+    if (equalHits.length) {
+      // console.log('equalHits', isReverse, equalHits, isHit);
     }
 
     return isHit;
