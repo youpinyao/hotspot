@@ -8,8 +8,16 @@ class Hotspot {
     this.init();
 
     return {
-      addSpot: this.addSpot,
-      getSpot: () => this.spots,
+      addSpot: this.addSpot.bind(this),
+      hitTest: this.hitTest.bind(this),
+      clearSpots: this.clearSpots.bind(this),
+      getSpots: () => {
+        const items = this.getItems();
+        return this.spots.map((spot, index) => ({
+          ...spot,
+          el: items[index],
+        }));
+      },
       destroy: this.destroy.bind(this),
     };
   }
@@ -29,19 +37,29 @@ class Hotspot {
     } = this.options;
 
     let img = null;
+    const div = document.createElement('div');
+    const items = document.createElement('div');
+
+    div.className = 'y-hotspot-container';
+    items.className = 'y-hotspot-items';
+
+    div.appendChild(items);
+
+    if (typeof target === 'string') {
+      document.querySelector(target).appendChild(div);
+    } else {
+      target.appendChild(div);
+    }
+
+    this.container = div;
+    this.target = items;
+
+    this.renderSpot();
 
     const onload = () => {
-      const div = document.createElement('div');
-      const items = document.createElement('div');
-
-      div.className = 'y-hotspot-container';
-      items.className = 'y-hotspot-items';
-
       if (img) {
         div.appendChild(img);
       }
-      div.appendChild(items);
-
       if (img) {
         div.style.width = `${img.width}px`;
         div.style.height = `${img.height}px`;
@@ -49,17 +67,6 @@ class Hotspot {
         div.style.width = '100%';
         div.style.height = '100%';
       }
-
-      if (typeof target === 'string') {
-        document.querySelector(target).appendChild(div);
-      } else {
-        target.appendChild(div);
-      }
-
-      this.container = div;
-      this.target = items;
-
-      this.renderSpot();
     };
 
     if (src) {
@@ -70,18 +77,58 @@ class Hotspot {
       onload();
     }
   }
-  addSpot() {
+  hitTest(size) {
+    let isHit = null;
+    const {
+      spots,
+    } = this;
+
+    spots.forEach((spot, index) => {
+      isHit = this.getDirection(size, spot, false, `${index}`);
+
+      if (!isHit) {
+        isHit = this.getDirection(size, spot, true, `${index}`);
+      }
+
+      if (!isHit) {
+        isHit = spot.left === size.left &&
+          spot.top === size.top &&
+          spot.width === size.width &&
+          spot.height === size.height;
+      }
+    });
+    return isHit;
+  }
+  clearSpots(index) {
+    if (index !== undefined) {
+      this.spots = [];
+    } else {
+      this.spots = this.spots.splice(1, index);
+    }
+    this.renderSpot();
+  }
+  addSpot(option) {
     const {
       minWidth,
       minHeight,
     } = this.options;
-    this.spots.push({
+    const size = {
       left: 0,
       top: 0,
       width: minWidth || 100,
       height: minHeight || 100,
-    });
-    this.renderSpot();
+      ...option,
+    };
+
+    if (!this.hitTest(size)) {
+      this.spots.push(size);
+      this.renderSpot();
+      return {
+        ...size,
+        el: this.getLastItems(),
+      };
+    }
+    return false;
   }
   renderSpot() {
     const {
@@ -106,18 +153,7 @@ class Hotspot {
 
     target.innerHTML = spots.map(spot => spotTpl(spot)).join('');
 
-    const items = this.getItems();
-
-    spots.forEach((spot, i) => {
-      if (spot && spot.spots) {
-        // eslint-disable-next-line
-        new Hotspot({
-          target: items[i],
-          spots: spot.spots,
-        });
-      }
-    });
-
+    this.unbindEvent();
     this.bindEvent();
   }
   bindEvent() {
@@ -179,6 +215,8 @@ class Hotspot {
     if (/y-hotspot-dot/g.test(e.target.className)) {
       this.startPage.isResize = true;
     }
+
+    this.updateActive();
   }
   // eslint-disable-next-line
   mouseup() {
@@ -186,6 +224,7 @@ class Hotspot {
     this.currentSpot = null;
     this.preMouseMove = null;
     this.mouseMoveDireciton = null;
+    this.updateActive();
   }
   // eslint-disable-next-line
   mousemove(e) {
@@ -318,10 +357,10 @@ class Hotspot {
 
     spots.forEach((spot, index) => {
       if (currentSpot !== index) {
-        let isHit = this.getDirection(size, spot, false, isResize, `${currentSpot}${index}`);
+        let isHit = this.getDirection(size, spot, false, `${currentSpot}${index}`);
 
         if (!isHit) {
-          isHit = this.getDirection(size, spot, true, isResize, `${currentSpot}${index}`);
+          isHit = this.getDirection(size, spot, true, `${currentSpot}${index}`);
         }
 
         if (!hasHit && isHit) {
@@ -374,7 +413,7 @@ class Hotspot {
       hasHit,
     };
   }
-  getDirection(spot1, spot2, isReverse = false, isResize, tag) {
+  getDirection(spot1, spot2, isReverse = false, tag) {
     const prevSpot = this[`_preSpot${tag}${isReverse}`] || spot1;
 
     const dot11 = {
@@ -578,6 +617,49 @@ class Hotspot {
 
     return Array.prototype.filter
       .call(items, item => item.parentElement.parentElement === this.container);
+  }
+  getLastItems() {
+    const items = this.getItems();
+
+    return items[items.length - 1];
+  }
+  updateActive() {
+    const items = this.getItems();
+
+    this.removeClass(items, 'active');
+
+    if (this.currentSpot !== undefined && this.currentSpot !== null) {
+      this.addClass(items[this.currentSpot], 'active');
+    }
+  }
+  addClass(el, cls) {
+    let els = [];
+
+    if (!el.length) {
+      els = [el];
+    } else {
+      els = el;
+    }
+
+    Array.prototype.forEach.call(els, (item) => {
+      // eslint-disable-next-line
+      item.className =
+        `${item.className.split(' ').filter(c => c.trim() !== cls).join(' ')} ${cls}`;
+    });
+  }
+  removeClass(el, cls) {
+    let els = [];
+
+    if (!el.length) {
+      els = [el];
+    } else {
+      els = el;
+    }
+
+    Array.prototype.forEach.call(els, (item) => {
+      // eslint-disable-next-line
+      item.className = item.className.split(' ').filter(c => c.trim() !== cls).join(' ');
+    });
   }
 }
 
