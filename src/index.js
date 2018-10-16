@@ -2,22 +2,20 @@ import './index.less';
 
 class Hotspot {
   constructor(options) {
+    this.emptyFn = () => {};
     this.options = options;
     this.spots = options.spots || [];
+    this.change = options.change || this.emptyFn;
 
     this.init();
 
     return {
       addSpot: this.addSpot.bind(this),
       hitTest: this.hitTest.bind(this),
-      clearSpots: this.clearSpots.bind(this),
-      getSpots: () => {
-        const items = this.getItems();
-        return this.spots.map((spot, index) => ({
-          ...spot,
-          el: items[index],
-        }));
-      },
+      removeSpot: this.removeSpot.bind(this),
+      renderSpot: this.renderSpot.bind(this),
+      updateSpot: this.updateSpot.bind(this),
+      getSpots: this.getSpots.bind(this),
       destroy: this.destroy.bind(this),
     };
   }
@@ -26,7 +24,11 @@ class Hotspot {
       target,
     } = this.options;
 
-    document.querySelector(target).removeChild(this.container);
+    try {
+      document.querySelector(target).removeChild(this.container);
+    } catch (error) {
+      // error
+    }
 
     this.unbindEvent();
   }
@@ -77,6 +79,31 @@ class Hotspot {
       onload();
     }
   }
+  updateSpot(spots) {
+    if (spots) {
+      this.spots = spots;
+    }
+    this.renderSpot();
+  }
+  getSpots() {
+    return this.spots.map((spot) => {
+      const {
+        children,
+      } = spot;
+      const data = {
+        ...spot,
+      };
+
+      if (children && typeof children !== 'string') {
+        data.children = {
+          ...children,
+          ...children.hotspot.getSpots[0],
+        };
+        delete data.children.hotspot;
+      }
+      return data;
+    });
+  }
   hitTest(size) {
     let isHit = null;
     const {
@@ -99,7 +126,7 @@ class Hotspot {
     });
     return isHit;
   }
-  clearSpots(index) {
+  removeSpot(index) {
     if (index !== undefined) {
       this.spots = [];
     } else {
@@ -123,10 +150,7 @@ class Hotspot {
     if (!this.hitTest(size)) {
       this.spots.push(size);
       this.renderSpot();
-      return {
-        ...size,
-        el: this.getLastItems(),
-      };
+      return true;
     }
     return false;
   }
@@ -142,11 +166,13 @@ class Hotspot {
         width,
         height,
         resize = true,
+        children,
       } = spot;
       return `<div
         class="y-hotspot-item"
         style="left:${left}px; top:${top}px; width:${width}px; height:${height}px;"
       >
+      ${children && typeof children === 'string' ? children : ''}
       ${resize ? '<div class="y-hotspot-dot"></div>' : ''}
       </div>`;
     };
@@ -155,6 +181,76 @@ class Hotspot {
 
     this.unbindEvent();
     this.bindEvent();
+    this.renderChild();
+  }
+  renderChild() {
+    const {
+      minHeight = 100, minWidth = 100,
+    } = this.options;
+    const {
+      spots,
+    } = this;
+    const items = this.getItems();
+
+    items.forEach((item, index) => {
+      if (spots[index].children) {
+        if (typeof spots[index].children !== 'string') {
+          if (spots[index].children.hotspot) {
+            spots[index].children.hotspot.destroy();
+          }
+          spots[index].children.hotspot = new Hotspot({
+            target: item,
+            minWidth: spots[index].children.minWidth || minWidth,
+            minHeight: spots[index].children.minHeight || minHeight,
+            spots: [spots[index].children],
+            change(childSpots) {
+              spots[index].children = {
+                ...spots[index].children,
+                ...childSpots[0],
+              };
+            },
+          });
+        }
+      }
+    });
+  }
+  checkChild() {
+    const {
+      spots,
+    } = this;
+    const {
+      children,
+      width,
+      height,
+    } = spots[this.currentSpot];
+
+    if (children && typeof children !== 'string') {
+      const {
+        hotspot,
+      } = children;
+      const childSpot = hotspot.getSpots()[0];
+      let {
+        left: cLeft,
+        top: cTop,
+        // eslint-disable-next-line
+        width: cWidth,
+        // eslint-disable-next-line
+        height: cHeight,
+      } = childSpot;
+
+      if (cLeft + cWidth > width) {
+        cLeft = width - cWidth;
+      }
+      if (cTop + cHeight > height) {
+        cTop = height - cHeight;
+      }
+
+      hotspot.updateSpot([{
+        ...childSpot,
+        left: cLeft,
+        top: cTop,
+      }]);
+    }
   }
   bindEvent() {
     const that = this;
@@ -284,6 +380,13 @@ class Hotspot {
       items[currentSpot].style.top = `${size.top}px`;
       items[currentSpot].style.width = `${size.width}px`;
       items[currentSpot].style.height = `${size.height}px`;
+
+      // 尺寸变动事件
+      if (this.change) {
+        this.change(this.spots);
+      }
+
+      this.checkChild();
     }
   }
   getSize(left, top, width, height, isResize) {

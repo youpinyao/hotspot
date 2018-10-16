@@ -1,26 +1,31 @@
 import Hotspot from '../src';
 
-import './index.css';
+import './index.scss';
 
-const minWidth = 100;
-const minHeight = 100;
-const childMinWidth = 100;
-const childMinHeight = 50;
+const minWidth = 130;
+const minHeight = 50;
 
 const defaultChild = {
   left: 0,
   top: 0,
-  width: 100,
-  height: 50,
-  resize: false,
+  width: 110,
+  height: 30,
+  minWidth: 110,
+  minHeight: 30,
+  children: `
+    <div class="hotspot-title-item">
+      <span></span>
+      <div>热点标题热点标题热点</div>
+    </div>
+  `,
 };
 
 // eslint-disable-next-line
 let spots = [{
   left: 0,
   top: 0,
-  width: 200,
-  height: 200,
+  width: 130,
+  height: 50,
   children: {
     ...defaultChild,
   },
@@ -32,29 +37,8 @@ const hotspot = new Hotspot({
   src: require('./640x360.png'),
   minWidth,
   minHeight,
+  spots,
 });
-
-function addChild({
-  el,
-  children,
-}) {
-  // eslint-disable-next-line
-  children.hotspot = new Hotspot({
-    target: el,
-    minWidth: childMinWidth,
-    minHeight: childMinHeight,
-    spots: [{
-      ...defaultChild,
-      ...children,
-    }],
-  });
-}
-
-function renderSpots() {
-  hotspot.clearSpots();
-  spots.forEach(spot => hotspot.addSpot(spot));
-  hotspot.getSpots().forEach(spot => addChild(spot));
-}
 
 function addSpot(size = {
   left: 0,
@@ -66,29 +50,13 @@ function addSpot(size = {
   },
 }) {
   if (!hotspot.hitTest(size)) {
-    spots.push(size);
-    renderSpots();
+    hotspot.addSpot(size);
   } else {
-    console.error('添加失败');
+    console.error('热点区域重复，添加失败，请修改热点区域（左上角）');
   }
 }
 
-function refreshSpots() {
-  spots = hotspot.getSpots();
-
-  spots.forEach((spot) => {
-    // eslint-disable-next-line
-    spot.children = {
-      ...spot.children,
-      ...spot.children.hotspot.getSpots()[0],
-    };
-  });
-}
-
-renderSpots();
-
 window.addSpot = () => {
-  refreshSpots();
   addSpot();
 };
 window.hotspot = hotspot;

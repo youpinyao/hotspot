@@ -1,3 +1,5 @@
+@primary: #FF74B9;
+
 .y-hotspot {
   &-container {
     user-select: none;
@@ -16,7 +18,7 @@
   }
   &-item {
     position: absolute;
-    background-color: fade(#000, 40);
+    background-color: fade(@primary, 50);
     cursor: move;
   }
   &-dot {
@@ -29,6 +31,6 @@
     z-index: 1;
     right: -2px;
     bottom: -2px;
-    box-shadow: 0 0 2px 0 #000;
+    box-shadow: 0 0 2px 0 @primary;
   }
 }
