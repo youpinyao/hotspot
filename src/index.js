@@ -77,14 +77,20 @@ class Hotspot {
 
     this.setSrc();
   }
-  setSrc() {
+  setSrc(newSrc) {
     let img = null;
     const {
       container,
     } = this;
-    const {
+    let {
       src,
     } = this.options;
+
+    if (newSrc) {
+      src = newSrc;
+    }
+    this.options.src = newSrc;
+
     const onload = () => {
       if (img) {
         try {
