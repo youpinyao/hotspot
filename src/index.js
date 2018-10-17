@@ -49,6 +49,8 @@ class Hotspot {
   init() {
     const {
       target,
+      width,
+      height,
     } = this.options;
 
     const div = document.createElement('div');
@@ -73,8 +75,8 @@ class Hotspot {
 
     this.renderSpot();
 
-    div.style.width = '100%';
-    div.style.height = '100%';
+    div.style.width = width ? `${width}px` : '100%';
+    div.style.height = height ? `${height}px` : '100%';
 
     this.setSrc();
   }
@@ -85,6 +87,10 @@ class Hotspot {
     } = this;
     let {
       src,
+    } = this.options;
+    const {
+      width,
+      height,
     } = this.options;
 
     if (newSrc) {
@@ -105,8 +111,8 @@ class Hotspot {
         container.style.width = `${img.width}px`;
         container.style.height = `${img.height}px`;
       } else {
-        container.style.width = '100%';
-        container.style.height = '100%';
+        container.style.width = width ? `${width}px` : '100%';
+        container.style.height = height ? `${height}px` : '100%';
       }
     };
 
@@ -166,11 +172,12 @@ class Hotspot {
     return isHit;
   }
   removeSpot(index) {
-    if (index !== undefined) {
+    if (index === undefined) {
       this.spots = [];
     } else {
-      this.spots = this.spots.splice(1, index);
+      this.spots.splice(index, 1);
     }
+
     this.renderSpot();
   }
   addSpot(option) {
@@ -839,7 +846,7 @@ class Hotspot {
   addClass(el, cls) {
     let els = [];
 
-    if (!el.length) {
+    if (!el.length && el.length !== 0) {
       els = [el];
     } else {
       els = el;
@@ -854,7 +861,7 @@ class Hotspot {
   removeClass(el, cls) {
     let els = [];
 
-    if (!el.length) {
+    if (!el.length && el.length !== 0) {
       els = [el];
     } else {
       els = el;
