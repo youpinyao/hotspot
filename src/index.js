@@ -21,6 +21,9 @@ class Hotspot {
   }
   destroy() {
     const {
+      spots,
+    } = this;
+    const {
       target,
     } = this.options;
 
@@ -29,6 +32,16 @@ class Hotspot {
     } catch (error) {
       // error
     }
+
+    spots.forEach((spot) => {
+      if (spot.children) {
+        if (typeof spot.children !== 'string') {
+          if (spot.children.hotspot) {
+            spots.children.hotspot.destroy();
+          }
+        }
+      }
+    });
 
     this.unbindEvent();
   }
