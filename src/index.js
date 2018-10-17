@@ -40,9 +40,11 @@ class Hotspot {
 
     let img = null;
     const div = document.createElement('div');
+    const grid = document.createElement('div');
     const items = document.createElement('div');
 
     div.className = 'y-hotspot-container';
+    grid.className = 'y-hotspot-grid';
     items.className = 'y-hotspot-items';
 
     div.appendChild(items);
@@ -52,6 +54,7 @@ class Hotspot {
     } else {
       target.appendChild(div);
     }
+    div.appendChild(grid);
 
     this.container = div;
     this.target = items;
