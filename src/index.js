@@ -38,7 +38,7 @@ class Hotspot {
       if (spot.children) {
         if (typeof spot.children !== 'string') {
           if (spot.children.hotspot) {
-            spots.children.hotspot.destroy();
+            spot.children.hotspot.destroy();
           }
         }
       }
