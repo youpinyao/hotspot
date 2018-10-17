@@ -35,10 +35,8 @@ class Hotspot {
   init() {
     const {
       target,
-      src,
     } = this.options;
 
-    let img = null;
     const div = document.createElement('div');
     const grid = document.createElement('div');
     const items = document.createElement('div');
@@ -61,16 +59,34 @@ class Hotspot {
 
     this.renderSpot();
 
+    div.style.width = '100%';
+    div.style.height = '100%';
+
+    this.setSrc();
+  }
+  setSrc() {
+    let img = null;
+    const {
+      container,
+    } = this;
+    const {
+      src,
+    } = this.options;
     const onload = () => {
       if (img) {
-        div.appendChild(img);
+        try {
+          container.removeChild(container.querySelector('img'));
+        } catch (error) {
+          // error;
+        }
+        container.appendChild(img);
       }
       if (img) {
-        div.style.width = `${img.width}px`;
-        div.style.height = `${img.height}px`;
+        container.style.width = `${img.width}px`;
+        container.style.height = `${img.height}px`;
       } else {
-        div.style.width = '100%';
-        div.style.height = '100%';
+        container.style.width = '100%';
+        container.style.height = '100%';
       }
     };
 
