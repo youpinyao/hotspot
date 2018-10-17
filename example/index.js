@@ -8,14 +8,17 @@ const minHeight = 50;
 const defaultChild = {
   left: 0,
   top: 0,
-  width: 110,
+  width: 100,
   height: 30,
-  minWidth: 110,
+  minWidth: 100,
   minHeight: 30,
+  resize: {
+    height: false,
+  },
   children: `
-    <div class="hotspot-title-item">
+    <div class="hotspot-title-item left">
       <span></span>
-      <div>热点标题热点标题热点</div>
+      <div>热点标题</div>
     </div>
   `,
 };
@@ -24,10 +27,24 @@ const defaultChild = {
 let spots = [{
   left: 0,
   top: 0,
-  width: 130,
-  height: 50,
+  width: minWidth,
+  height: minHeight,
   children: {
     ...defaultChild,
+  },
+}, {
+  left: 200,
+  top: 0,
+  width: minWidth,
+  height: minHeight,
+  children: {
+    ...defaultChild,
+    children: `
+      <div class="hotspot-title-item right">
+        <span></span>
+        <div>热点标题</div>
+      </div>
+    `,
   },
 }];
 
@@ -35,8 +52,6 @@ let spots = [{
 const hotspot = new Hotspot({
   target: '#container',
   src: require('./640x360.png'),
-  minWidth,
-  minHeight,
   spots,
 });
 

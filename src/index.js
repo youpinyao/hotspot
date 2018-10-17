@@ -168,12 +168,32 @@ class Hotspot {
         resize = true,
         children,
       } = spot;
+      let resizeWidth = false;
+      let resizeHeight = false;
+      let dotPos = 'auto';
+
+      if (!resize || (typeof resize === 'boolean' && resize)) {
+        resizeWidth = true;
+        resizeHeight = true;
+      } else if (resize) {
+        resizeWidth = resize.width !== false;
+        resizeHeight = resize.height !== false;
+      }
+
+      if (resizeWidth && !resizeHeight) {
+        dotPos = 'right';
+      }
+
+      if (!resizeWidth && resizeHeight) {
+        dotPos = 'bottom';
+      }
+
       return `<div
         class="y-hotspot-item"
         style="left:${left}px; top:${top}px; width:${width}px; height:${height}px;"
       >
       ${children && typeof children === 'string' ? children : ''}
-      ${resize ? '<div class="y-hotspot-dot"></div>' : ''}
+      ${resize ? `<div class="y-hotspot-dot ${dotPos}"></div>` : ''}
       </div>`;
     };
 
@@ -184,9 +204,6 @@ class Hotspot {
     this.renderChild();
   }
   renderChild() {
-    const {
-      minHeight = 100, minWidth = 100,
-    } = this.options;
     const {
       spots,
     } = this;
@@ -200,8 +217,6 @@ class Hotspot {
           }
           spots[index].children.hotspot = new Hotspot({
             target: item,
-            minWidth: spots[index].children.minWidth || minWidth,
-            minHeight: spots[index].children.minHeight || minHeight,
             spots: [spots[index].children],
             change(childSpots) {
               spots[index].children = {
@@ -340,6 +355,20 @@ class Hotspot {
         height,
         isResize,
       } = startPage;
+      const spot = this.spots[currentSpot];
+      const {
+        resize,
+      } = spot;
+      let resizeWidth = false;
+      let resizeHeight = false;
+
+      if (!resize || (typeof resize === 'boolean' && resize)) {
+        resizeWidth = true;
+        resizeHeight = true;
+      } else if (resize) {
+        resizeWidth = resize.width !== false;
+        resizeHeight = resize.height !== false;
+      }
 
       let size = null;
       const x = e.pageX - pageX;
@@ -349,8 +378,8 @@ class Hotspot {
         size = this.getSize(
           left,
           top,
-          width + x,
-          height + y,
+          resizeWidth ? width + x : width,
+          resizeHeight ? height + y : height,
           isResize,
         );
       } else {
@@ -389,10 +418,43 @@ class Hotspot {
       this.checkChild();
     }
   }
+  getMinSize() {
+    let {
+      minWidth = 0, minHeight = 0,
+    } = this.options;
+    const {
+      currentSpot,
+    } = this;
+    const spot = this.spots[currentSpot];
+
+    if (spot.minWidth) {
+      // eslint-disable-next-line
+      minWidth = spot.minWidth;
+    }
+    if (spot.minHeight) {
+      // eslint-disable-next-line
+      minHeight = spot.minHeight;
+    }
+
+    if (spot && spot.children) {
+      if (minWidth < spot.children.width) {
+        minWidth = spot.children.width;
+      }
+      if (minHeight < spot.children.height) {
+        minHeight = spot.children.height;
+      }
+    }
+
+    return {
+      minWidth,
+      minHeight,
+    };
+  }
   getSize(left, top, width, height, isResize) {
     const {
-      minWidth = 100, minHeight = 100,
-    } = this.options;
+      minWidth,
+      minHeight,
+    } = this.getMinSize();
     const {
       target,
     } = this;

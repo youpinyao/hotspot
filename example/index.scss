@@ -85,4 +85,20 @@ body {
     text-overflow: ellipsis;
     overflow: hidden;
   }
+
+  &.right {
+    > * {
+      float: right;
+    }
+    > span {
+      &:before {
+        right: 0;
+        left: auto;
+      }
+    }
+    > div {
+      left: 0;
+      right: 20px;
+    }
+  }
 }

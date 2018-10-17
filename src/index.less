@@ -1,4 +1,5 @@
 @primary: #FF74B9;
+@red: #FF4085;
 
 .y-hotspot {
   &-container {
@@ -23,14 +24,31 @@
   }
   &-dot {
     cursor: se-resize;
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
-    background-color: #fff;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid @red;
+    border-bottom: 2px solid @red;
     position: absolute;
     z-index: 1;
     right: -2px;
     bottom: -2px;
-    box-shadow: 0 0 2px 0 @primary;
+    &.right {
+      bottom: 0;
+      top: 0;
+      margin: auto;
+      border-bottom: 0;
+      right: -3px;
+      height: 8px;
+      cursor: e-resize;
+    }
+    &.bottom {
+      left: 0;
+      right: 0;
+      margin: auto;
+      border-right: 0;
+      bottom: -3px;
+      width: 8px;
+      cursor: s-resize;
+    }
   }
 }
