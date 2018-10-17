@@ -17,6 +17,7 @@ class Hotspot {
       updateSpot: this.updateSpot.bind(this),
       getSpots: this.getSpots.bind(this),
       destroy: this.destroy.bind(this),
+      setSrc: this.setSrc.bind(this),
     };
   }
   destroy() {
