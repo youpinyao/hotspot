@@ -98,13 +98,14 @@ class Hotspot {
     }
     this.options.src = newSrc;
 
+    try {
+      container.removeChild(container.querySelector('img'));
+    } catch (error) {
+      // error;
+    }
+
     const onload = () => {
       if (img) {
-        try {
-          container.removeChild(container.querySelector('img'));
-        } catch (error) {
-          // error;
-        }
         container.appendChild(img);
       }
       if (img) {
