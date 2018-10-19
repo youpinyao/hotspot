@@ -80,7 +80,7 @@ class Hotspot {
 
     this.setSrc();
   }
-  setSrc(newSrc) {
+  setSrc(newSrc = '') {
     let img = null;
     const {
       container,
@@ -93,19 +93,21 @@ class Hotspot {
       height,
     } = this.options;
 
-    if (newSrc) {
-      src = newSrc;
-    }
-    this.options.src = newSrc;
+    const removeImg = () => {
+      try {
+        Array.prototype.forEach.call(container.querySelectorAll('img'), el => container.removeChild(el));
+      } catch (error) {
+        // error;
+      }
+    };
 
-    try {
-      container.removeChild(container.querySelector('img'));
-    } catch (error) {
-      // error;
-    }
+    src = newSrc;
+
+    this.options.src = newSrc;
 
     const onload = () => {
       if (img) {
+        removeImg();
         container.appendChild(img);
       }
       if (img) {
@@ -122,6 +124,7 @@ class Hotspot {
       img.onload = onload;
       img.src = src;
     } else {
+      removeImg();
       onload();
     }
   }
