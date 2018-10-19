@@ -268,11 +268,14 @@ class Hotspot {
           spots[index].children.hotspot = new Hotspot({
             target: item,
             spots: [spots[index].children],
-            change(childSpots) {
+            change: (childSpots) => {
               spots[index].children = {
                 ...spots[index].children,
                 ...childSpots[0],
               };
+              if (this.change) {
+                this.change(this.spots);
+              }
             },
           });
         }
