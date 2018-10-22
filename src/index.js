@@ -238,6 +238,7 @@ class Hotspot {
         height,
         resize = true,
         children,
+        extra,
       } = spot;
       let resizeWidth = false;
       let resizeHeight = false;
@@ -265,6 +266,7 @@ class Hotspot {
       >
       ${children && typeof children === 'string' ? children : ''}
       ${resize ? `<div class="y-hotspot-dot ${dotPos}"></div>` : ''}
+      ${extra || ''}
       </div>`;
     };
 
