@@ -167,7 +167,7 @@ class Hotspot {
       if (children && typeof children !== 'string') {
         data.children = {
           ...children,
-          ...children.hotspot.getSpots[0],
+          ...children.hotspot.getSpots()[0],
         };
         delete data.children.hotspot;
       }
