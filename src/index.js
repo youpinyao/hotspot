@@ -174,25 +174,27 @@ class Hotspot {
       return data;
     });
   }
-  hitTest(size) {
+  hitTest(size, currentSpot) {
     let isHit = null;
     const {
       spots,
     } = this;
 
     spots.forEach((spot, index) => {
-      if (!isHit) {
-        isHit = this.getDirection(size, spot, false, `${index}`);
-      }
-      if (!isHit) {
-        isHit = this.getDirection(size, spot, true, `${index}`);
-      }
+      if (currentSpot !== index) {
+        if (!isHit) {
+          isHit = this.getDirection(size, spot, false, `${index}`);
+        }
+        if (!isHit) {
+          isHit = this.getDirection(size, spot, true, `${index}`);
+        }
 
-      if (!isHit) {
-        isHit = spot.left === size.left &&
-          spot.top === size.top &&
-          spot.width === size.width &&
-          spot.height === size.height;
+        if (!isHit) {
+          isHit = spot.left === size.left &&
+            spot.top === size.top &&
+            spot.width === size.width &&
+            spot.height === size.height;
+        }
       }
     });
     return isHit;
@@ -477,22 +479,34 @@ class Hotspot {
 
       size = newSize;
 
-      this.spots[currentSpot].left = size.left;
-      this.spots[currentSpot].top = size.top;
-      this.spots[currentSpot].width = size.width;
-      this.spots[currentSpot].height = size.height;
+      const confirmSize = this.getSize(
+        size.left,
+        size.top,
+        size.width,
+        size.height,
+      );
 
-      items[currentSpot].style.left = `${size.left}px`;
-      items[currentSpot].style.top = `${size.top}px`;
-      items[currentSpot].style.width = `${size.width}px`;
-      items[currentSpot].style.height = `${size.height}px`;
+      if (size.left === confirmSize.left &&
+        size.top === confirmSize.top &&
+        size.width === confirmSize.width &&
+        size.height === confirmSize.height && !this.hitTest(size, this.currentSpot)) {
+        this.spots[currentSpot].left = size.left;
+        this.spots[currentSpot].top = size.top;
+        this.spots[currentSpot].width = size.width;
+        this.spots[currentSpot].height = size.height;
 
-      // 尺寸变动事件
-      if (this.change) {
-        this.change(this.spots);
+        items[currentSpot].style.left = `${size.left}px`;
+        items[currentSpot].style.top = `${size.top}px`;
+        items[currentSpot].style.width = `${size.width}px`;
+        items[currentSpot].style.height = `${size.height}px`;
+
+        // 尺寸变动事件
+        if (this.change) {
+          this.change(this.spots);
+        }
+
+        this.checkChild();
       }
-
-      this.checkChild();
     }
   }
   getMinSize() {
@@ -527,7 +541,7 @@ class Hotspot {
       minHeight,
     };
   }
-  getSize(left, top, width, height, isResize) {
+  getSize(left, top, width, height, isResize = false) {
     const {
       minWidth,
       minHeight,
