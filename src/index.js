@@ -122,11 +122,32 @@ class Hotspot {
     if (src) {
       img = new window.Image();
       img.onload = onload;
-      img.src = src;
+      this.getBase64(src).then((sr) => {
+        img.src = sr;
+      });
     } else {
       removeImg();
       onload();
     }
+  }
+  getBase64(src) {
+    const img = new window.Image();
+
+    img.crossOrigin = '*';
+
+    return new Promise((resolve) => {
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = src;
+    });
   }
   updateSpot(spots) {
     if (spots) {
