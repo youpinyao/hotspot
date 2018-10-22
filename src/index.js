@@ -181,8 +181,9 @@ class Hotspot {
     } = this;
 
     spots.forEach((spot, index) => {
-      isHit = this.getDirection(size, spot, false, `${index}`);
-
+      if (!isHit) {
+        isHit = this.getDirection(size, spot, false, `${index}`);
+      }
       if (!isHit) {
         isHit = this.getDirection(size, spot, true, `${index}`);
       }
