@@ -230,7 +230,7 @@ class Hotspot {
       spots,
       target,
     } = this;
-    const spotTpl = (spot) => {
+    const spotTpl = (spot, index) => {
       const {
         left,
         top,
@@ -266,11 +266,11 @@ class Hotspot {
       >
       ${children && typeof children === 'string' ? children : ''}
       ${resize ? `<div class="y-hotspot-dot ${dotPos}"></div>` : ''}
-      ${extra || ''}
+      ${typeof extra === 'function' ? extra(spot, index) : (extra || '')}
       </div>`;
     };
 
-    target.innerHTML = spots.map(spot => spotTpl(spot)).join('');
+    target.innerHTML = spots.map((spot, index) => spotTpl(spot, index)).join('');
 
     this.unbindEvent();
     this.bindEvent();
