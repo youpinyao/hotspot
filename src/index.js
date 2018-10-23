@@ -78,7 +78,7 @@ class Hotspot {
     div.style.width = width ? `${width}px` : '100%';
     div.style.height = height ? `${height}px` : '100%';
 
-    this.setSrc();
+    this.setSrc(this.options.src);
   }
   setSrc(newSrc = '') {
     let img = null;
@@ -95,7 +95,8 @@ class Hotspot {
 
     const removeImg = () => {
       try {
-        Array.prototype.forEach.call(container.querySelectorAll('img'), el => container.removeChild(el));
+        Array.prototype
+          .forEach.call(container.querySelectorAll('img'), el => container.removeChild(el));
       } catch (error) {
         // error;
       }
@@ -360,11 +361,16 @@ class Hotspot {
 
     // eslint-disable-next-line
     this._mouseup = function(e) {
+      e.stopPropagation();
       that.mouseup.bind(that)(e);
     };
     // eslint-disable-next-line
     this._mousemove = function(e) {
-      that.mousemove.bind(that)(e);
+      e.stopPropagation();
+      if (that.isParentElement(e.target, items[that.currentSpot]) ||
+        (that.startPage && that.startPage.isResize === true)) {
+        that.mousemove.bind(that)(e);
+      }
     };
 
     // eslint-disable-next-line
@@ -404,6 +410,8 @@ class Hotspot {
 
     if (/y-hotspot-dot/g.test(e.target.className)) {
       this.startPage.isResize = true;
+    } else {
+      this.startPage.isResize = false;
     }
 
     this.updateActive();
@@ -479,34 +487,22 @@ class Hotspot {
 
       size = newSize;
 
-      const confirmSize = this.getSize(
-        size.left,
-        size.top,
-        size.width,
-        size.height,
-      );
+      this.spots[currentSpot].left = size.left;
+      this.spots[currentSpot].top = size.top;
+      this.spots[currentSpot].width = size.width;
+      this.spots[currentSpot].height = size.height;
 
-      if (size.left === confirmSize.left &&
-        size.top === confirmSize.top &&
-        size.width === confirmSize.width &&
-        size.height === confirmSize.height && !this.beyondTest(size)) {
-        this.spots[currentSpot].left = size.left;
-        this.spots[currentSpot].top = size.top;
-        this.spots[currentSpot].width = size.width;
-        this.spots[currentSpot].height = size.height;
+      items[currentSpot].style.left = `${size.left}px`;
+      items[currentSpot].style.top = `${size.top}px`;
+      items[currentSpot].style.width = `${size.width}px`;
+      items[currentSpot].style.height = `${size.height}px`;
 
-        items[currentSpot].style.left = `${size.left}px`;
-        items[currentSpot].style.top = `${size.top}px`;
-        items[currentSpot].style.width = `${size.width}px`;
-        items[currentSpot].style.height = `${size.height}px`;
-
-        // 尺寸变动事件
-        if (this.change) {
-          this.change(this.spots);
-        }
-
-        this.checkChild();
+      // 尺寸变动事件
+      if (this.change) {
+        this.change(this.spots);
       }
+
+      this.checkChild();
     }
   }
   beyondTest(size) {
@@ -913,6 +909,21 @@ class Hotspot {
     if (this.currentSpot !== undefined && this.currentSpot !== null) {
       this.addClass(items[this.currentSpot], 'active');
     }
+  }
+  isParentElement(el, parent) {
+    let newEl = el;
+    let ret = false;
+    if (newEl === parent) {
+      ret = true;
+    }
+    while (newEl.parentElement && ret === false) {
+      newEl = newEl.parentElement;
+
+      if (newEl === parent) {
+        ret = true;
+      }
+    }
+    return ret;
   }
   addClass(el, cls) {
     let els = [];
