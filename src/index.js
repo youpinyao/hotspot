@@ -489,7 +489,7 @@ class Hotspot {
       if (size.left === confirmSize.left &&
         size.top === confirmSize.top &&
         size.width === confirmSize.width &&
-        size.height === confirmSize.height && !this.hitTest(size, this.currentSpot)) {
+        size.height === confirmSize.height && !this.beyondTest(size)) {
         this.spots[currentSpot].left = size.left;
         this.spots[currentSpot].top = size.top;
         this.spots[currentSpot].width = size.width;
@@ -508,6 +508,32 @@ class Hotspot {
         this.checkChild();
       }
     }
+  }
+  beyondTest(size) {
+    const {
+      clientWidth,
+      clientHeight,
+    } = this.target;
+    const {
+      left,
+      top,
+      width,
+      height,
+    } = size;
+
+    if (left < 0) {
+      return true;
+    }
+    if (top < 0) {
+      return true;
+    }
+    if ((left + width) > clientWidth) {
+      return true;
+    }
+    if ((top + height) > clientHeight) {
+      return true;
+    }
+    return false;
   }
   getMinSize() {
     let {
