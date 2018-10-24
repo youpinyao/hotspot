@@ -354,7 +354,7 @@ class Hotspot {
     Array.prototype.forEach.call(items, (item, index) => {
       // eslint-disable-next-line
       item.addEventListener('mousedown', function(e) {
-        if (/stop-propagation/g.test(e.target.className)) {
+        if (/stop-propagation|y-hotspot-dot/g.test(e.target.className)) {
           e.stopPropagation();
         }
         that.mousedown.bind(that)(e, index);
@@ -363,14 +363,14 @@ class Hotspot {
 
     // eslint-disable-next-line
     this._mouseup = function(e) {
-      if (/stop-propagation/g.test(e.target.className)) {
+      if (/stop-propagation|y-hotspot-dot/g.test(e.target.className)) {
         e.stopPropagation();
       }
       that.mouseup.bind(that)(e);
     };
     // eslint-disable-next-line
     this._mousemove = function(e) {
-      if (/stop-propagation/g.test(e.target.className)) {
+      if (/stop-propagation|y-hotspot-dot/g.test(e.target.className)) {
         e.stopPropagation();
       }
       if (that.isParentElement(e.target, items[that.currentSpot]) ||
