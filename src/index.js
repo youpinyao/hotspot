@@ -354,19 +354,25 @@ class Hotspot {
     Array.prototype.forEach.call(items, (item, index) => {
       // eslint-disable-next-line
       item.addEventListener('mousedown', function(e) {
-        e.stopPropagation();
+        if (/stop-propagation/g.test(e.target.className)) {
+          e.stopPropagation();
+        }
         that.mousedown.bind(that)(e, index);
       });
     });
 
     // eslint-disable-next-line
     this._mouseup = function(e) {
-      e.stopPropagation();
+      if (/stop-propagation/g.test(e.target.className)) {
+        e.stopPropagation();
+      }
       that.mouseup.bind(that)(e);
     };
     // eslint-disable-next-line
     this._mousemove = function(e) {
-      e.stopPropagation();
+      if (/stop-propagation/g.test(e.target.className)) {
+        e.stopPropagation();
+      }
       if (that.isParentElement(e.target, items[that.currentSpot]) ||
         (that.startPage && that.startPage.isResize === true)) {
         that.mousemove.bind(that)(e);
