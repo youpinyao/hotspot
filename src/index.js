@@ -18,6 +18,7 @@ class Hotspot {
       getSpots: this.getSpots.bind(this),
       destroy: this.destroy.bind(this),
       setSrc: this.setSrc.bind(this),
+      getContainer: () => this.container,
     };
   }
   destroy() {
@@ -163,6 +164,7 @@ class Hotspot {
       } = spot;
       const data = {
         ...spot,
+        ...this.getMinSize(),
       };
 
       if (children && typeof children !== 'string') {
@@ -546,11 +548,11 @@ class Hotspot {
     } = this;
     const spot = this.spots[currentSpot];
 
-    if (spot.minWidth) {
+    if (spot && spot.minWidth) {
       // eslint-disable-next-line
       minWidth = spot.minWidth;
     }
-    if (spot.minHeight) {
+    if (spot && spot.minHeight) {
       // eslint-disable-next-line
       minHeight = spot.minHeight;
     }
