@@ -688,11 +688,13 @@ class Hotspot {
             } else {
               size.top = spot.top - size.height;
 
-              if (size.left < spot.left + spot.width) {
-                size.left = spot.left + spot.width;
-              }
+
               if (size.top < 0) {
                 size.top = 0;
+
+                if (size.left < spot.left + spot.width) {
+                  size.left = spot.left + spot.width;
+                }
               }
             }
           }
@@ -712,11 +714,11 @@ class Hotspot {
               }
             } else {
               size.left = spot.left - size.width;
-              if (size.top < spot.top + spot.height) {
-                size.top = spot.top + spot.height;
-              }
               if (size.left < 0) {
                 size.left = 0;
+                if (size.top < spot.top + spot.height) {
+                  size.top = spot.top + spot.height;
+                }
               }
             }
           }
@@ -907,28 +909,29 @@ class Hotspot {
         isHit.direction = 'bottom';
       }
     }
+
     // if (hits.length && isReverse === true) {
     //   console.log(11, JSON.stringify(isHit), hits.join(''));
     // }
 
     // 同长 或 同宽 情况
-    if (!hits.length && equalHits.length && isReverse) {
-      if (equalHits.join('') === '03') {
+    if (isReverse) {
+      if (equalHits.join('') === '03' || hits.join('') === '03') {
         isHit = {
           direction: 'right',
         };
       }
-      if (equalHits.join('') === '12') {
+      if (equalHits.join('') === '12' || hits.join('') === '12') {
         isHit = {
           direction: 'left',
         };
       }
-      if (equalHits.join('') === '23') {
+      if (equalHits.join('') === '23' || hits.join('') === '23') {
         isHit = {
           direction: 'top',
         };
       }
-      if (equalHits.join('') === '01') {
+      if (equalHits.join('') === '01' || hits.join('') === '01') {
         isHit = {
           direction: 'bottom',
         };
