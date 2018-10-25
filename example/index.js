@@ -18,7 +18,7 @@ const defaultChild = {
   children: `
     <div class="hotspot-title-item left">
       <span></span>
-      <div>热点标题</div>
+      <div class="stop-propagation">热点标题</div>
     </div>
   `,
 };
@@ -42,7 +42,7 @@ let spots = [{
     children: `
       <div class="hotspot-title-item right">
         <span></span>
-        <div>热点标题</div>
+        <div class="stop-propagation">热点标题</div>
       </div>
     `,
   },

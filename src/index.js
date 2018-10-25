@@ -196,9 +196,7 @@ class Hotspot {
 
         if (!isHit) {
           isHit = spot.left === size.left &&
-            spot.top === size.top &&
-            spot.width === size.width &&
-            spot.height === size.height;
+            spot.top === size.top;
         }
       }
     });
@@ -381,7 +379,8 @@ class Hotspot {
         (that.startPage && that.startPage.isResize === true)) {
         that.mousemove.bind(that)(e);
       }
-      if (that.currentSpot !== null && !that.isParentElement(e.target, items[that.currentSpot])) {
+      if (that.currentSpot !== null && !that.isParentElement(e.target, items[that.currentSpot]) &&
+      that.startPage && that.startPage.isResize === false) {
         that.startPage = null;
         that.clearPreSpot();
       }
