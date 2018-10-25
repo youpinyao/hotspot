@@ -2,8 +2,8 @@ import Hotspot from '../src';
 
 import './index.scss';
 
-const minWidth = 130;
-const minHeight = 50;
+const minWidth = 230;
+const minHeight = 100;
 
 const defaultChild = {
   left: 0,
@@ -27,13 +27,13 @@ const defaultChild = {
 let spots = [{
   left: 0,
   top: 0,
-  width: minWidth,
+  width: minWidth + 50,
   height: minHeight,
   children: {
     ...defaultChild,
   },
 }, {
-  left: 200,
+  left: 300,
   top: 0,
   width: minWidth,
   height: minHeight,

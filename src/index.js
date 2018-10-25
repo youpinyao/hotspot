@@ -7,6 +7,8 @@ class Hotspot {
     this.spots = options.spots || [];
     this.change = options.change || this.emptyFn;
 
+    this.currentSpot = null;
+
     this.init();
 
     return {
@@ -375,15 +377,13 @@ class Hotspot {
       if (/stop-propagation|y-hotspot-dot/g.test(e.target.className)) {
         e.stopPropagation();
       }
-      if (that.isParentElement(e.target, items[that.currentSpot]) ||
+      if ((that.currentSpot !== null && that.isParentElement(e.target, items[that.currentSpot])) ||
         (that.startPage && that.startPage.isResize === true)) {
         that.mousemove.bind(that)(e);
-      } else {
-        Object.keys(this).forEach((key) => {
-          if (/_preSpot/g.test(key)) {
-            delete this[key];
-          }
-        });
+      }
+      if (that.currentSpot !== null && !that.isParentElement(e.target, items[that.currentSpot])) {
+        that.startPage = null;
+        that.clearPreSpot();
       }
     };
 
@@ -429,17 +429,29 @@ class Hotspot {
     }
 
     this.updateActive();
+
+    // eslint-disable-next-line
+    this._mousemove(e);
   }
   // eslint-disable-next-line
   mouseup() {
     this.startPage = null;
     this.currentSpot = null;
-    this.preMouseMove = null;
-    this.mouseMoveDireciton = null;
     this.updateActive();
   }
   // eslint-disable-next-line
   mousemove(e) {
+    if (!this.startPage) {
+      const spot = this.spots[this.currentSpot];
+      this.startPage = {
+        pageX: e.pageX,
+        pageY: e.pageY,
+        left: spot.left,
+        top: spot.top,
+        width: spot.width,
+        height: spot.height,
+      };
+    }
     const items = this.getItems();
     const {
       startPage,
@@ -518,6 +530,13 @@ class Hotspot {
 
       this.checkChild();
     }
+  }
+  clearPreSpot() {
+    Object.keys(this).forEach((key) => {
+      if (/_preSpot/g.test(key)) {
+        delete this[key];
+      }
+    });
   }
   beyondTest(size) {
     const {
@@ -826,6 +845,9 @@ class Hotspot {
         isHit.direction = 'left';
       }
       if (hits.length === 1 && hits[0] === 3 && isHit.direction === 'right') {
+        isHit.direction = 'bottom';
+      }
+      if (hits.length === 2 && hits[1] === 3 && isHit.direction === 'right') {
         isHit.direction = 'bottom';
       }
       if (hits.length === 1 && hits[0] === 2 && isHit.direction === 'left') {
