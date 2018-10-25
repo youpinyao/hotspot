@@ -378,6 +378,12 @@ class Hotspot {
       if (that.isParentElement(e.target, items[that.currentSpot]) ||
         (that.startPage && that.startPage.isResize === true)) {
         that.mousemove.bind(that)(e);
+      } else {
+        Object.keys(this).forEach((key) => {
+          if (/_preSpot/g.test(key)) {
+            delete this[key];
+          }
+        });
       }
     };
 
