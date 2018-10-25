@@ -20,6 +20,7 @@ class Hotspot {
       getSpots: this.getSpots.bind(this),
       destroy: this.destroy.bind(this),
       setSrc: this.setSrc.bind(this),
+      hasHit: this.hasHit.bind(this),
       getContainer: () => this.container,
     };
   }
@@ -179,6 +180,21 @@ class Hotspot {
       return data;
     });
   }
+  hasHit() {
+    const {
+      spots,
+    } = this;
+
+    let hasHit = false;
+
+    spots.forEach((spot, i) => {
+      if (this.hitTest(spot, i)) {
+        hasHit = true;
+      }
+    });
+
+    return hasHit;
+  }
   hitTest(size, currentSpot) {
     let isHit = null;
     const {
@@ -195,8 +211,7 @@ class Hotspot {
         }
 
         if (!isHit) {
-          isHit = spot.left === size.left &&
-            spot.top === size.top;
+          isHit = spot.left === size.left && spot.top === size.top;
         }
       }
     });
@@ -375,15 +390,22 @@ class Hotspot {
       if (/stop-propagation|y-hotspot-dot/g.test(e.target.className)) {
         e.stopPropagation();
       }
-      if ((that.currentSpot !== null && that.isParentElement(e.target, items[that.currentSpot])) ||
-        (that.startPage && that.startPage.isResize === true)) {
+      if (that.currentSpot !== null) {
         that.mousemove.bind(that)(e);
       }
-      if (that.currentSpot !== null && !that.isParentElement(e.target, items[that.currentSpot]) &&
-        that.startPage && that.startPage.isResize === false) {
-        that.startPage = null;
-        that.clearPreSpot();
-      }
+      // TODO
+      // if ((that.currentSpot !== null &&
+      // that.isParentElement(e.target, items[that.currentSpot])) ||
+      //   (that.startPage && that.startPage.isResize === true)) {
+      //   that.mousemove.bind(that)(e);
+      // }
+      // if (that.currentSpot !== null &&
+      // !that.isParentElement(e.target, items[that.currentSpot]) &&
+      //   that.startPage && that.startPage.isResize === false) {
+      //   that.startPage = null;
+
+      //   that.clearPreSpot();
+      // }
     };
 
     // eslint-disable-next-line
@@ -432,7 +454,6 @@ class Hotspot {
     // eslint-disable-next-line
     this._mousemove(e);
   }
-  // eslint-disable-next-line
   mouseup() {
     this.startPage = null;
     this.currentSpot = null;
@@ -504,13 +525,12 @@ class Hotspot {
         );
       }
 
-      const {
-        size: newSize,
-        // eslint-disable-next-line
-        hasHit,
-      } = this.getHitSize(size, isResize);
+      // TODO
+      // const {
+      //   size: newSize,
+      // } = this.getHitSize(size, isResize);
 
-      size = newSize;
+      // size = newSize;
 
       this.spots[currentSpot].left = size.left;
       this.spots[currentSpot].top = size.top;
@@ -657,13 +677,16 @@ class Hotspot {
       spots,
       currentSpot,
     } = this;
+    const {
+      clientWidth,
+      clientHeight,
+    } = this.target;
     const size = {
       left,
       top,
       width,
       height,
     };
-    let hasHit = false;
 
     spots.forEach((spot, index) => {
       if (currentSpot !== index) {
@@ -671,10 +694,6 @@ class Hotspot {
 
         if (!isHit) {
           isHit = this.getDirection(size, spot, true, `${currentSpot}${index}`);
-        }
-
-        if (!hasHit && isHit) {
-          hasHit = isHit;
         }
 
         if (isHit) {
@@ -686,14 +705,13 @@ class Hotspot {
                 size.height = spot.top - size.top;
               }
             } else {
-              size.top = spot.top - size.height;
-
+              size.top = spot.top - size.height - 1;
 
               if (size.top < 0) {
                 size.top = 0;
 
                 if (size.left < spot.left + spot.width) {
-                  size.left = spot.left + spot.width;
+                  size.left = spot.left + spot.width + 1;
                 }
               }
             }
@@ -702,7 +720,15 @@ class Hotspot {
             if (isResize) {
               // 不存在
             } else {
-              size.top = spot.top + spot.height;
+              size.top = spot.top + spot.height + 1;
+
+              if (size.top >= clientHeight - size.height) {
+                size.top = clientHeight - size.height;
+
+                if (size.left < spot.left + spot.width) {
+                  size.left = spot.left + spot.width + 1;
+                }
+              }
             }
           }
           if (isHit.direction === 'left') {
@@ -713,11 +739,11 @@ class Hotspot {
                 size.width = spot.left - size.left;
               }
             } else {
-              size.left = spot.left - size.width;
+              size.left = spot.left - size.width - 1;
               if (size.left < 0) {
                 size.left = 0;
                 if (size.top < spot.top + spot.height) {
-                  size.top = spot.top + spot.height;
+                  size.top = spot.top + spot.height + 1;
                 }
               }
             }
@@ -726,7 +752,15 @@ class Hotspot {
             if (isResize) {
               // 不存在
             } else {
-              size.left = spot.left + spot.width;
+              size.left = spot.left + spot.width + 1;
+
+              if (size.left >= clientWidth - size.width) {
+                size.left = clientWidth - size.width - 1;
+
+                if (size.top < spot.top + spot.height) {
+                  size.top = spot.top + spot.height + 1;
+                }
+              }
             }
           }
         }
@@ -735,7 +769,6 @@ class Hotspot {
 
     return {
       size,
-      hasHit,
     };
   }
   getDirection(spot1, spot2, isReverse = false, tag) {
@@ -850,6 +883,11 @@ class Hotspot {
       }
     });
 
+    if (isHit && isHit.direction === 'right' && isReverse && hits.join('') === '2') {
+      isHit.direction = 'top';
+    }
+
+
     // 左右或上下 移动的 碰撞对象边界情况
     if (hits.length && isReverse === false) {
       if (hits.length === 1 && hits[0] === 3 && isHit.direction === 'top') {
@@ -881,11 +919,6 @@ class Hotspot {
       }
     }
 
-
-    // if (hits.length && isReverse === true) {
-    //   console.log(11, JSON.stringify(isHit), hits.join(''));
-    // }
-
     // 左右 或 上下 不可移动情况
     if ((isHit && !isHit.direction) && hits.length && isReverse === true) {
       if (hits.join('') === '1' || (hits.join('') === '2' && prevSpot.top === 0) || hits.join('') ===
@@ -905,33 +938,33 @@ class Hotspot {
       if (hits.join('') === '03') {
         isHit.direction = 'right';
       }
-      if (hits.join('') === '01') {
+      if (hits.join('') === '01' || hits.join('') === '0') {
         isHit.direction = 'bottom';
       }
     }
 
-    // if (hits.length && isReverse === true) {
-    //   console.log(11, JSON.stringify(isHit), hits.join(''));
-    // }
-
     // 同长 或 同宽 情况
     if (isReverse) {
-      if (equalHits.join('') === '03' || hits.join('') === '03') {
+      if (equalHits.join('') === '03' || hits.join('') === '03' || (equalHits.join('') === '0' &&
+          hits.join('') === '3') || (hits.join('') === '0' && equalHits.join('') === '3')) {
         isHit = {
           direction: 'right',
         };
       }
-      if (equalHits.join('') === '12' || hits.join('') === '12') {
+      if (equalHits.join('') === '12' || hits.join('') === '12' || (equalHits.join('') === '1' &&
+          hits.join('') === '2') || (hits.join('') === '1' && equalHits.join('') === '2')) {
         isHit = {
           direction: 'left',
         };
       }
-      if (equalHits.join('') === '23' || hits.join('') === '23') {
+      if (equalHits.join('') === '23' || hits.join('') === '23' || (equalHits.join('') === '2' &&
+          hits.join('') === '3') || (hits.join('') === '2' && equalHits.join('') === '3')) {
         isHit = {
           direction: 'top',
         };
       }
-      if (equalHits.join('') === '01' || hits.join('') === '01') {
+      if (equalHits.join('') === '01' || hits.join('') === '01' || (equalHits.join('') === '0' &&
+          hits.join('') === '1') || (hits.join('') === '0' && equalHits.join('') === '1')) {
         isHit = {
           direction: 'bottom',
         };
