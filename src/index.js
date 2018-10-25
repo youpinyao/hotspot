@@ -570,7 +570,7 @@ class Hotspot {
     const {
       currentSpot,
     } = this;
-    const spot = this.spots[currentSpot];
+    const spot = this.spots[currentSpot || 0];
 
     if (spot && spot.minWidth) {
       // eslint-disable-next-line
@@ -687,6 +687,13 @@ class Hotspot {
               }
             } else {
               size.top = spot.top - size.height;
+
+              if (size.left < spot.left + spot.width) {
+                size.left = spot.left + spot.width;
+              }
+              if (size.top < 0) {
+                size.top = 0;
+              }
             }
           }
           if (isHit.direction === 'bottom') {
@@ -705,6 +712,12 @@ class Hotspot {
               }
             } else {
               size.left = spot.left - size.width;
+              if (size.top < spot.top + spot.height) {
+                size.top = spot.top + spot.height;
+              }
+              if (size.left < 0) {
+                size.left = 0;
+              }
             }
           }
           if (isHit.direction === 'right') {
@@ -866,6 +879,11 @@ class Hotspot {
       }
     }
 
+
+    // if (hits.length && isReverse === true) {
+    //   console.log(11, JSON.stringify(isHit), hits.join(''));
+    // }
+
     // 左右 或 上下 不可移动情况
     if ((isHit && !isHit.direction) && hits.length && isReverse === true) {
       if (hits.join('') === '1' || (hits.join('') === '2' && prevSpot.top === 0) || hits.join('') ===
@@ -882,7 +900,16 @@ class Hotspot {
           isBorder: true,
         };
       }
+      if (hits.join('') === '03') {
+        isHit.direction = 'right';
+      }
+      if (hits.join('') === '01') {
+        isHit.direction = 'bottom';
+      }
     }
+    // if (hits.length && isReverse === true) {
+    //   console.log(11, JSON.stringify(isHit), hits.join(''));
+    // }
 
     // 同长 或 同宽 情况
     if (!hits.length && equalHits.length && isReverse) {
