@@ -380,7 +380,7 @@ class Hotspot {
         that.mousemove.bind(that)(e);
       }
       if (that.currentSpot !== null && !that.isParentElement(e.target, items[that.currentSpot]) &&
-      that.startPage && that.startPage.isResize === false) {
+        that.startPage && that.startPage.isResize === false) {
         that.startPage = null;
         that.clearPreSpot();
       }
@@ -951,8 +951,24 @@ class Hotspot {
     if (newEl === parent) {
       ret = true;
     }
+    if (newEl && /stop-propagation/g.test(newEl.className) &&
+      newEl.parentElement &&
+      newEl.parentElement.parentElement &&
+      newEl.parentElement.parentElement !== parent
+    ) {
+      return false;
+    }
     while (newEl.parentElement && ret === false) {
       newEl = newEl.parentElement;
+
+      if (newEl && /stop-propagation/g.test(newEl.className) &&
+        newEl.parentElement &&
+        newEl.parentElement.parentElement &&
+        newEl.parentElement.parentElement !== parent
+      ) {
+        ret = false;
+        break;
+      }
 
       if (newEl === parent) {
         ret = true;
