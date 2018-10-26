@@ -158,6 +158,7 @@ class Hotspot {
     if (spots) {
       this.spots = spots;
     }
+
     this.renderSpot();
   }
   getSpots() {
@@ -824,16 +825,16 @@ class Hotspot {
       let xpHitEqual = false;
       // eslint-disable-next-line
       let ypHitEqual = false;
-      const xHit = dot.x > compareSpot.left && dot.x < compareSpot.left + compareSpot.width;
-      const yHit = dot.y > compareSpot.top && dot.y < compareSpot.top + compareSpot.height;
+      const xHit = dot.x >= compareSpot.left && dot.x <= compareSpot.left + compareSpot.width;
+      const yHit = dot.y >= compareSpot.top && dot.y <= compareSpot.top + compareSpot.height;
       const xHitEqual = dot.x === compareSpot.left ||
         dot.x === compareSpot.left + compareSpot.width;
       const yHitEqual = dot.y === compareSpot.top ||
         dot.y === compareSpot.top + compareSpot.height;
 
       if (!isReverse) {
-        xpHit = dot.x > prevSpot.left && dot.x < prevSpot.left + prevSpot.width;
-        ypHit = dot.y > prevSpot.top && dot.y < prevSpot.top + prevSpot.height;
+        xpHit = dot.x >= prevSpot.left && dot.x <= prevSpot.left + prevSpot.width;
+        ypHit = dot.y >= prevSpot.top && dot.y <= prevSpot.top + prevSpot.height;
         xpHitEqual = dot.x === prevSpot.left || dot.x === prevSpot.left + prevSpot.width;
         ypHitEqual = dot.y === prevSpot.top || dot.y === prevSpot.top + prevSpot.height;
       } else {
@@ -850,8 +851,8 @@ class Hotspot {
           x: prevSpot.left,
           y: prevSpot.top + prevSpot.height,
         }];
-        xpHit = dots[index].x > spot2.left && dots[index].x < spot2.left + spot2.width;
-        ypHit = dots[index].y > spot2.top && dots[index].y < spot2.top + spot2.height;
+        xpHit = dots[index].x >= spot2.left && dots[index].x <= spot2.left + spot2.width;
+        ypHit = dots[index].y >= spot2.top && dots[index].y <= spot2.top + spot2.height;
         xpHitEqual = dots[index].x === spot2.left || dots[index].x === spot2.left + spot2.width;
         ypHitEqual = dots[index].y === spot2.top || dots[index].y === spot2.top + spot2.height;
       }
