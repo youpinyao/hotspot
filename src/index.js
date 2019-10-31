@@ -477,6 +477,9 @@ class Hotspot {
     const {
       startPage,
       currentSpot,
+      options: {
+        scale = 1,
+      },
     } = this;
 
     if (startPage && currentSpot !== null && currentSpot !== undefined) {
@@ -505,8 +508,8 @@ class Hotspot {
       }
 
       let size = null;
-      const x = e.pageX - pageX;
-      const y = e.pageY - pageY;
+      const x = (e.pageX - pageX) / scale;
+      const y = (e.pageY - pageY) / scale;
 
       if (isResize) {
         size = this.getSize(
