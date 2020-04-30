@@ -27,7 +27,7 @@
   "homepage": "https://github.com/youpinyao/hotspot#readme",
   "dependencies": {
     "art-template": "^4.12.2",
-    "jquery": "^1.12.4",
+    "jquery": "^3.5.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.1"
   },
